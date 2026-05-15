@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Для моей маленькой</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            overflow: hidden;
+            background: #000;
+            font-family: 'VT323', monospace;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+        }
+
+        #matrix {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .love-vertical {
+            position: absolute;
+            left: 7%;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 5.8vw;
+            line-height: 1.05;
+            color: #BB2649;
+            text-shadow: 0 0 25px #BB2649;
+            z-index: 3;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            gap: 70px;
+        }
+
+        .love-letter {
+            display: block;
+            animation: softFloat 14s ease-in-out infinite;
+            animation-delay: calc(var(--i) * 1.1s);
+        }
+
+        @keyframes softFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(9px, -11px) rotate(2deg); }
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main-text {
+            font-family: 'VT323', monospace;
+            font-size: 1.35vw;
+            color: #B22222;
+            text-shadow: 0 0 30px #B22222,
+                         2px 2px 0 #000,
+                         -2px -2px 0 #000;
+            margin-bottom: 48px;
+            letter-spacing: 5px;
+            z-index: 3;
+        }
+
+        .button {
+            font-family: 'VT323', monospace;
+            padding: 5px 18px;
+            font-size: 0.78vw;
+            color: white;
+            background: #DC143C;
+            border: 3px solid #DC143C;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            z-index: 3;
+            box-shadow: 0 0 35px rgba(220, 20, 60, 0.9);
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .button:hover {
+            background: #ff3366;
+            transform: scale(1.12);
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Кнопка в правом верхнем углу */
+        .corner-btn {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            width: 52px;
+            height: 52px;
+            background: rgba(255,255,255,0.08);
+            border: 2px solid rgba(255,255,255,0.25);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 20;
+            transition: all 0.3s ease;
+        }
+
+        .corner-btn:hover {
+            background: rgba(255,255,255,0.18);
+            transform: scale(1.1);
+        }
+
+        .corner-btn img {
+            width: 32px;
+            height: 32px;
+        }
+
+        /* Overlay с мягким размытием */
+        .overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 15;
+            display: none;
+            opacity: 0;
+            transition: opacity 1.4s ease;
+        }
+
+        .screen2 {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 10;
+            opacity: 0;
+        }
+
+        .heart-container {
+            position: relative;
+            width: 82vw;
+            height: 72vh;
+            max-width: 880px;
+            max-height: 620px;
+            margin-left: -30px;
+        }
+
+        .love-text {
+            position: absolute;
+            color: #DC143C;
+            font-size: 17px;
+            text-shadow: 0 0 10px #DC143C;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+            white-space: nowrap;
+        }
+
+        .days-counter {
+            position: absolute;
+            top: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.65vw;
+            color: #ffffff;
+            opacity: 0.92;
+            letter-spacing: 4px;
+            text-shadow: 0 0 12px #ffffff;
+            white-space: nowrap;
+            z-index: 11;
+        }
+
+        .date {
+            position: absolute;
+            bottom: 55px;
+            font-size: 26px;
+            color: #ffffff;
+            opacity: 0.85;
+            letter-spacing: 4px;
+        }
+
+        /* Табличка */
+        .message-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 10, 10, 0.97);
+            border: 3px solid #BB2649;
+            border-radius: 18px;
+            padding: 35px 50px;
+            max-width: 460px;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(187, 38, 73, 0.6);
+            display: none;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+            z-index: 30;
+        }
+
+        .message-box.show {
+            opacity: 1;
+        }
+
+        .message-box h2 {
+            font-size: 1.85vw;
+            color: #BB2649;
+            margin-bottom: 12px;
+            letter-spacing: 3px;
+        }
+
+        .red-line {
+            height: 3px;
+            background: #BB2649;
+            width: 100%;
+            margin: 16px 0 22px 0;
+        }
+
+        .message-box p {
+            font-size: 1.35vw;
+            color: #ffffff;
+            line-height: 1.45;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 32px;
+            color: #BB2649;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #ff3366;
+            transform: scale(1.15);
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrix"></canvas>
+
+    <div class="love-vertical">
+        <span class="love-letter" style="--i: 0;">L</span>
+        <span class="love-letter" style="--i: 1;">O</span>
+        <span class="love-letter" style="--i: 2;">V</span>
+        <span class="love-letter" style="--i: 3;">E</span>
+    </div>
+
+    <div class="content" id="screen1">
+        <div class="main-text">моей маленькой</div>
+        <button class="button" id="btn">
+            <img src="image.png" class="icon" id="icon" alt="icon">
+            ПРОСМОТРЕТЬ СООБЩЕНИЕ
+        </button>
+    </div>
+
+    <!-- Кнопка-картинка в правом верхнем углу -->
+    <div class="corner-btn" id="cornerBtn">
+        <img src="image2.png" alt="Menu">
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="screen2" id="screen2">
+        <div class="heart-container" id="heartContainer"></div>
+        <div class="days-counter" id="daysCounter">223 ДНЯ</div>
+        <div class="date">05.08.2025</div>
+    </div>
+
+    <!-- Табличка -->
+    <div class="message-box" id="messageBox">
+        <span class="close-btn" id="closeBtn">×</span>
+        <h2>Не забывай</h2>
+        <div class="red-line"></div>
+        <p>Не забывай, что ты не одна</p>
+    </div>
+
+    <script>
+        // Matrix Rain
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const letters = ['L','O','V','E'];
+        let drops = [];
+
+        function initDrops() {
+            const columns = Math.floor(canvas.width / 16);
+            drops = [];
+            for (let i = 0; i < columns; i++) {
+                drops[i] = Math.random() * (canvas.height / 16 * 1.4);
+            }
+        }
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.085)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#BB2649';
+            ctx.font = '16px VT323';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters[Math.floor(Math.random() * letters.length)];
+                ctx.fillText(text, i * 16, drops[i] * 16);
+                if (drops[i] * 16 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+
+        initDrops();
+        setInterval(drawMatrix, 45);
+
+        function createHeart() {
+            const container = document.getElementById('heartContainer');
+            container.innerHTML = '';
+
+            const texts = Array(520).fill("i love you");
+            const centerX = container.offsetWidth / 2;
+            const centerY = container.offsetHeight / 2 - 35;
+            const scale = 1.55;
+
+            texts.forEach((phrase, index) => {
+                const el = document.createElement('div');
+                el.className = 'love-text';
+                el.textContent = phrase;
+                container.appendChild(el);
+
+                const t = (index / texts.length) * Math.PI * 2;
+                let x = 16 * Math.pow(Math.sin(t), 3);
+                let y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+
+                x = centerX + x * scale * 11.5 + (Math.random() - 0.5) * 55 - 30;
+                y = centerY + y * scale * 12.2 + (Math.random() - 0.5) * 60;
+
+                el.style.left = `${x}px`;
+                el.style.top = `${y}px`;
+                el.style.fontSize = `${16 + Math.random() * 5}px`;
+            });
+
+            const loveTexts = document.querySelectorAll('.love-text');
+            const step = 15000 / loveTexts.length;
+
+            loveTexts.forEach((text, i) => {
+                setTimeout(() => {
+                    text.style.opacity = '0.93';
+                }, i * step);
+            });
+        }
+
+        // Основная кнопка (сердце)
+        const btn = document.getElementById('btn');
+        const icon = document.getElementById('icon');
+
+        btn.addEventListener('click', () => {
+            icon.classList.add('flyRight');
+            btn.style.color = '#FF1493';
+
+            const screen1 = document.getElementById('screen1');
+            screen1.style.transition = 'filter 1.8s ease, opacity 1.8s ease';
+            screen1.style.filter = 'blur(12px)';
+            screen1.style.opacity = '0';
+
+            setTimeout(() => {
+                screen1.style.display = 'none';
+                const screen2 = document.getElementById('screen2');
+                screen2.style.display = 'flex';
+                screen2.style.opacity = '1';
+
+                setTimeout(() => {
+                    createHeart();
+                }, 300);
+            }, 1600);
+        });
+
+        // Кнопка-картинка в углу
+        const cornerBtn = document.getElementById('cornerBtn');
+        const messageBox = document.getElementById('messageBox');
+        const overlay = document.getElementById('overlay');
+        const closeBtn = document.getElementById('closeBtn');
+
+        cornerBtn.addEventListener('click', () => {
+            overlay.style.display = 'block';
+            setTimeout(() => overlay.style.opacity = '1', 10);
+            messageBox.style.display = 'block';
+            setTimeout(() => messageBox.classList.add('show'), 50);
+        });
+
+        closeBtn.addEventListener('click', () => {
+            overlay.style.opacity = '0';
+            messageBox.classList.remove('show');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                messageBox.style.display = 'none';
+            }, 800);
+        });
+    </script>
+</body>
+</html>
