@@ -62,13 +62,7 @@
             text-shadow: 0 0 30px #B22222, 2px 2px 0 #000, -2px -2px 0 #000;
             margin-bottom: 48px;
             letter-spacing: 5px;
-            white-space: nowrap;
-            overflow: hidden;
-            border-right: 3px solid #B22222;
-            animation: blink 0.7s step-end infinite;
         }
-
-        @keyframes blink { 50% { border-color: transparent; } }
 
         .button {
             font-size: 0.78vw;
@@ -90,6 +84,7 @@
 
         .icon { width: 24px; height: 24px; }
 
+        /* Кнопка-картинка */
         .corner-btn {
             position: absolute;
             top: 25px;
@@ -104,9 +99,15 @@
             justify-content: center;
             cursor: pointer;
             z-index: 25;
+            transition: all 0.3s ease;
         }
 
-        .corner-btn:hover { background: rgba(255,255,255,0.18); transform: scale(1.1); }
+        .corner-btn:hover {
+            background: rgba(255,255,255,0.18);
+            transform: scale(1.1);
+        }
+
+        .corner-btn img { width: 32px; height: 32px; }
 
         .overlay {
             position: absolute;
@@ -172,19 +173,6 @@
             letter-spacing: 4px;
         }
 
-        .loading-screen {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: #000;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 30;
-            color: #BB2649;
-        }
-
         .message-box {
             position: absolute;
             top: 50%;
@@ -204,6 +192,28 @@
         }
 
         .message-box.show { opacity: 1; }
+
+        .message-box h2 {
+            font-size: 1.85vw;
+            color: #BB2649;
+            margin-bottom: 12px;
+        }
+
+        .red-line {
+            height: 3px;
+            background: #BB2649;
+            width: 100%;
+            margin: 16px 0 22px 0;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 32px;
+            color: #BB2649;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -218,13 +228,14 @@
     </div>
 
     <div class="content" id="screen1">
-        <div class="main-text" id="typingText">моей маленькой</div>
+        <div class="main-text">моей маленькой</div>
         <button class="button" id="btn">
             <img src="image.png" class="icon" id="icon" alt="">
             ПРОСМОТРЕТЬ СООБЩЕНИЕ
         </button>
     </div>
 
+    <!-- Кнопка-картинка -->
     <div class="corner-btn" id="cornerBtn">
         <img src="image2.png" alt="Menu">
     </div>
@@ -237,20 +248,10 @@
         <div class="date">05.08.2025</div>
     </div>
 
-    <!-- Экран загрузки -->
-    <div class="loading-screen" id="loadingScreen">
-        <div class="loading-text">LOADING...</div>
-        <div style="width:420px; height:28px; border:2px solid #BB2649; position:relative;">
-            <div id="progressBar" style="height:100%; width:0%; background:#BB2649; transition:width 0.08s linear;"></div>
-            <div id="percent" style="position:absolute; top:-38px; right:0; font-size:1.4vw;">0%</div>
-        </div>
-    </div>
-
-    <!-- Табличка -->
     <div class="message-box" id="messageBox">
-        <span class="close-btn" id="closeBtn" style="position:absolute; top:12px; right:16px; font-size:32px; color:#BB2649; cursor:pointer;">×</span>
+        <span class="close-btn" id="closeBtn">×</span>
         <h2>Не забывай</h2>
-        <div class="red-line" style="height:3px; background:#BB2649; width:100%; margin:16px 0 22px 0;"></div>
+        <div class="red-line"></div>
         <p>Не забывай, что ты не одна</p>
     </div>
 
@@ -258,7 +259,10 @@
         // Matrix Rain
         const canvas = document.getElementById('matrix');
         const ctx = canvas.getContext('2d');
-        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
@@ -283,21 +287,6 @@
         initDrops();
         setInterval(drawMatrix, 45);
 
-        // Печатающийся текст
-        function typeWriter() {
-            const text = "моей маленькой";
-            const el = document.getElementById('typingText');
-            let i = 0;
-            el.textContent = '';
-            const interval = setInterval(() => {
-                if (i < text.length) {
-                    el.textContent += text.charAt(i);
-                    i++;
-                } else clearInterval(interval);
-            }, 80);
-        }
-
-        // Создание сердца
         function createHeart() {
             const container = document.getElementById('heartContainer');
             container.innerHTML = '';
@@ -325,82 +314,49 @@
 
             const loveTexts = document.querySelectorAll('.love-text');
             const step = 15000 / loveTexts.length;
-            loveTexts.forEach((text, i) => setTimeout(() => text.style.opacity = '0.93', i * step));
-        }
-
-        // Все обработчики событий
-        function initEventListeners() {
-            // Основная кнопка
-            const btn = document.getElementById('btn');
-            if (btn) btn.addEventListener('click', () => {
-                document.getElementById('icon').classList.add('flyRight');
-
-                const screen1 = document.getElementById('screen1');
-                screen1.style.transition = 'filter 1.6s ease, opacity 1.6s ease';
-                screen1.style.filter = 'blur(12px)';
-                screen1.style.opacity = '0';
-
-                setTimeout(() => {
-                    screen1.style.display = 'none';
-                    const loading = document.getElementById('loadingScreen');
-                    loading.style.display = 'flex';
-
-                    let progress = 0;
-                    const bar = document.getElementById('progressBar');
-                    const percentEl = document.getElementById('percent');
-
-                    const int = setInterval(() => {
-                        progress += Math.random() * 14 + 5;
-                        if (progress > 100) progress = 100;
-                        bar.style.width = progress + '%';
-                        percentEl.textContent = Math.floor(progress) + '%';
-
-                        if (progress >= 100) {
-                            clearInterval(int);
-                            setTimeout(() => {
-                                loading.style.display = 'none';
-                                const screen2 = document.getElementById('screen2');
-                                screen2.style.display = 'flex';
-                                screen2.style.opacity = '1';
-                                setTimeout(createHeart, 200);
-                            }, 500);
-                        }
-                    }, 70);
-                }, 1500);
+            loveTexts.forEach((text, i) => {
+                setTimeout(() => text.style.opacity = '0.93', i * step);
             });
-
-            // Кнопка-картинка
-            const cornerBtn = document.getElementById('cornerBtn');
-            const overlay = document.getElementById('overlay');
-            const messageBox = document.getElementById('messageBox');
-            const closeBtn = document.getElementById('closeBtn');
-
-            if (cornerBtn) {
-                cornerBtn.addEventListener('click', () => {
-                    overlay.style.display = 'block';
-                    setTimeout(() => overlay.style.opacity = '1', 10);
-                    messageBox.style.display = 'block';
-                    setTimeout(() => messageBox.classList.add('show'), 50);
-                });
-            }
-
-            if (closeBtn) {
-                closeBtn.addEventListener('click', () => {
-                    overlay.style.opacity = '0';
-                    messageBox.classList.remove('show');
-                    setTimeout(() => {
-                        overlay.style.display = 'none';
-                        messageBox.style.display = 'none';
-                    }, 800);
-                });
-            }
         }
 
-        // Запуск после полной загрузки страницы
-        window.onload = () => {
-            typeWriter();
-            initEventListeners();
-        };
+        // Основная кнопка
+        document.getElementById('btn').addEventListener('click', () => {
+            document.getElementById('icon').classList.add('flyRight');
+            const screen1 = document.getElementById('screen1');
+            screen1.style.transition = 'filter 1.8s ease, opacity 1.8s ease';
+            screen1.style.filter = 'blur(12px)';
+            screen1.style.opacity = '0';
+
+            setTimeout(() => {
+                screen1.style.display = 'none';
+                const screen2 = document.getElementById('screen2');
+                screen2.style.display = 'flex';
+                screen2.style.opacity = '1';
+                setTimeout(createHeart, 300);
+            }, 1600);
+        });
+
+        // Кнопка-картинка (исправлено)
+        const cornerBtn = document.getElementById('cornerBtn');
+        const overlay = document.getElementById('overlay');
+        const messageBox = document.getElementById('messageBox');
+        const closeBtn = document.getElementById('closeBtn');
+
+        cornerBtn.addEventListener('click', () => {
+            overlay.style.display = 'block';
+            setTimeout(() => overlay.style.opacity = '1', 10);
+            messageBox.style.display = 'block';
+            setTimeout(() => messageBox.classList.add('show'), 50);
+        });
+
+        closeBtn.addEventListener('click', () => {
+            overlay.style.opacity = '0';
+            messageBox.classList.remove('show');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                messageBox.style.display = 'none';
+            }, 800);
+        });
     </script>
 </body>
 </html>
